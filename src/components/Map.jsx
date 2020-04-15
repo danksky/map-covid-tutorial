@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { geoMercator, geoPath } from "d3-geo"
 import { feature } from "topojson-client"
 
-const projection = geoMercator()
+const projection = geoMercator() // 6
   .scale(100)
   .translate([400, 300])
 
@@ -34,9 +34,9 @@ export default class Map extends React.Component {
               this.state.countries.map((featureElement, index) => ( // 5
                 <path
                   key={`country-svg-${index}`}
-                  d={geoPath().projection(projection)(featureElement)} // 6
+                  d={geoPath().projection(projection)(featureElement)} // 7
                   className="country"
-                  fill={`rgba(140,0,140,1)`} // 7
+                  fill={`rgba(140,0,140,1)`} // 8
                   stroke="#FFFFFF"
                   strokeWidth={0.25}
                 />
