@@ -29,7 +29,7 @@ export default class Map extends React.Component {
     return (
       <div className="Map" >
         <svg width={1024} height={650} viewBox="0 0 1024 650"> {/* 2 */}
-          <g className="countries">
+          <g className="countries-group">
             {this.state.countries ? // 3
               this.state.countries.map((featureElement, index) => ( // 5
                 <path
