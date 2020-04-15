@@ -8,6 +8,10 @@ export default class Map extends React.Component {
     this.state = {};
   }
 
+  componentDidMount() {
+
+  }
+
   render() {
     return (
       <div className="Map" >
