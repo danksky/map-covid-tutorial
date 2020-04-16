@@ -8,86 +8,11 @@ const projection = geoMercator()
   .scale(100)
   .translate([400, 300])
 
-const sampleData = {
-  "Fiji": 3074,
-  "Tanzania": 9138,
-  "W. Sahara": 4143,
-  "Canada": 9726,
-  "United States of America": 2439,
-  "Kazakhstan": 5090,
-  "Uzbekistan": 7353,
-  "Papua New Guinea": 6460,
-  "Indonesia": 6747,
-  "Argentina": 9,
-  "Chile": 5864,
-  "Dem. Rep. Congo": 6845,
-  "Somalia": 192,
-  "Kenya": 6651,
-  "Sudan": 346,
-  "Chad": 6251,
-  "Haiti": 1143,
-  "Dominican Rep.": 2436,
-  "Russia": 4703,
-  "Bahamas": 5904,
-  "Falkland Is.": 3269,
-  "Norway": 8617,
-  "Greenland": 3984,
-  "Fr. S. Antarctic Lands": 8599,
-  "Timor-Leste": 6780,
-  "South Africa": 4176,
-  "Lesotho": 1642,
-  "Mexico": 4020,
-  "Uruguay": 8650,
-  "Brazil": 2984,
-  "Bolivia": 1736,
-  "Peru": 2555,
-  "Colombia": 4452,
-  "Panama": 4131,
-  "Costa Rica": 91,
-  "Nicaragua": 7043,
-  "Honduras": 6387,
-  "El Salvador": 1059,
-  "Guatemala": 3389,
-  "Belize": 1865,
-  "Venezuela": 7918,
-  "Guyana": 9731,
-  "Suriname": 7663,
-  "France": 8582,
-  "Ecuador": 1889,
-  "Puerto Rico": 6067,
-  "Jamaica": 5362,
-  "Cuba": 6440,
-  "Zimbabwe": 1816,
-  "Botswana": 5960,
-  "Namibia": 9102,
-  "Senegal": 9869,
-  "Mali": 2561,
-  "Mauritania": 9969,
-  "Benin": 6901,
-  "Niger": 5985,
-  "Nigeria": 4014,
-  "Cameroon": 3428,
-  "Togo": 4304,
-  "Ghana": 8478,
-  "Côte d'Ivoire": 1051,
-  "Guinea": 5548,
-  "Guinea-Bissau": 7992,
-  "Liberia": 6675,
-  "Sierra Leone": 4517,
-  "Burkina Faso": 4694,
-  "Central African Rep.": 1429,
-  "Congo": 7581,
-  "Gabon": 449,
-  "Eq. Guinea": 4241,
-  "Zambia": 3389,
-  "Malawi": 5880,
-};
-
-function getCountryFill(featureElement) {
+function getCountryFill(referenceData, featureElement, maxCount) {
   let name = featureElement.properties.name;
-  let value = sampleData[name];
+  let value = referenceData[name];
   if (value) {
-    let opacity = value / 10000;
+    let opacity = value / maxCount;
     return `rgba(255, 0, 255, ${opacity})`;
   }
   return `rgba(200, 200, 200, 1)`;
@@ -99,6 +24,7 @@ export default class Map extends React.Component {
     this.state = {
       countryShapes: null,
       countryDataset: null,
+      caseCountMax: null,
     };
   }
 
@@ -124,9 +50,24 @@ export default class Map extends React.Component {
           });
       });
 
+    // Left: the name of the country as indicated in the TopoJSON
+    // Right: the name of the country as indicated in the JHU CSSE case data
+    countryDataset["United States of America"] = countryDataset["US"];
+    countryDataset["Greenland"] = countryDataset["Denmark"];
+    countryDataset["Congo"] = countryDataset["Congo (Brazzaville)"];
+    countryDataset["Dem. Rep. Congo"] = countryDataset["Congo (Kinshasa)"];
+    countryDataset["Central African Rep."] = countryDataset["Central African Republic"];
+    countryDataset["S. Sudan"] = countryDataset["South Sudan"];
+    countryDataset["Côte d'Ivoire"] = countryDataset["Cote d'Ivoire"];
+    countryDataset["Myanmar"] = countryDataset["Burma"];
+    countryDataset["South Korea"] = countryDataset["Korea, South"];
+
+    var caseCountMax = Math.max(...Object.values(countryDataset).map(value => value));
+
     this.setState({
       countryShapes: countryShapes,
       countryDataset: countryDataset,
+      caseCountMax: caseCountMax,
     });
   }
 
@@ -141,7 +82,7 @@ export default class Map extends React.Component {
                   key={`country-svg-${index}`}
                   d={geoPath().projection(projection)(featureElement)}
                   className="country"
-                  fill={getCountryFill(featureElement)}
+                  fill={getCountryFill(this.state.countryDataset, featureElement, this.state.caseCountMax)}
                   stroke="black"
                   strokeWidth={0.25}
                 />
