@@ -98,22 +98,36 @@ export default class Map extends React.Component {
     super(props);
     this.state = {
       countryShapes: null,
+      countryDataset: null,
     };
   }
 
-  componentDidMount() {
-    d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
-      .then(json => {
-        this.setState({
-          countryShapes: feature(json, json.objects.countries).features,
-        })
-        d3.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+  async componentDidMount() {
+    var countryShapes = null;
+    var countryDataset = null;
+    await d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+      .then(async (json) => {
+        countryShapes = feature(json, json.objects.countries).features;
+        await d3.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
           .then(csvData => {
-            console.log(csvData);
-            console.log(csvData[0]);
-            console.log(csvData.columns);
-          })
-      })
+            countryDataset = {};
+            let latestDate = csvData.columns[csvData.columns.length - 1];
+            csvData.forEach(province => {
+              let countryName = province["Country/Region"];
+              let caseCount = province[latestDate];
+              if (countryDataset[countryName] === undefined) {
+                countryDataset[countryName] = Number.parseInt(caseCount);
+              } else {
+                countryDataset[countryName] += Number.parseInt(caseCount);
+              }
+            })
+          });
+      });
+
+    this.setState({
+      countryShapes: countryShapes,
+      countryDataset: countryDataset,
+    });
   }
 
   render() {
