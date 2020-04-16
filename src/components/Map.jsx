@@ -8,11 +8,11 @@ const projection = geoMercator()
   .scale(100)
   .translate([400, 300])
 
-function getCountryFill(referenceData, featureElement, maxCount) {
+function getCountryFill(referenceData, featureElement) {
   let name = featureElement.properties.name;
   let value = referenceData[name];
   if (value) {
-    let opacity = value / maxCount;
+    let opacity = Math.log(value) / Math.log(8) / 10;
     return `rgba(255, 0, 255, ${opacity})`;
   }
   return `rgba(200, 200, 200, 1)`;
@@ -24,7 +24,6 @@ export default class Map extends React.Component {
     this.state = {
       countryShapes: null,
       countryDataset: null,
-      caseCountMax: null,
     };
   }
 
@@ -62,12 +61,9 @@ export default class Map extends React.Component {
     countryDataset["Myanmar"] = countryDataset["Burma"];
     countryDataset["South Korea"] = countryDataset["Korea, South"];
 
-    var caseCountMax = Math.max(...Object.values(countryDataset).map(value => value));
-
     this.setState({
       countryShapes: countryShapes,
       countryDataset: countryDataset,
-      caseCountMax: caseCountMax,
     });
   }
 
@@ -82,7 +78,7 @@ export default class Map extends React.Component {
                   key={`country-svg-${index}`}
                   d={geoPath().projection(projection)(featureElement)}
                   className="country"
-                  fill={getCountryFill(this.state.countryDataset, featureElement, this.state.caseCountMax)}
+                  fill={getCountryFill(this.state.countryDataset, featureElement)}
                   stroke="black"
                   strokeWidth={0.25}
                 />
