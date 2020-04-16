@@ -8,7 +8,7 @@ const projection = geoMercator()
   .scale(100)
   .translate([400, 300])
 
-var sampleData = {
+const sampleData = {
   "Fiji": 3074,
   "Tanzania": 9138,
   "W. Sahara": 4143,
@@ -88,7 +88,7 @@ function getCountryFill(featureElement) {
   let value = sampleData[name];
   if (value) {
     let opacity = value / 10000;
-    return `rgba(140, 200, 140, ${opacity})`;
+    return `rgba(255, 0, 255, ${opacity})`;
   }
   return `rgba(200, 200, 200, 1)`;
 }
@@ -121,7 +121,7 @@ export default class Map extends React.Component {
                   key={`country-svg-${index}`}
                   d={geoPath().projection(projection)(featureElement)}
                   className="country"
-                  fill={'rgba(255, 0, 255, 0.5)'}
+                  fill={getCountryFill(featureElement)}
                   stroke="black"
                   strokeWidth={0.25}
                 />
