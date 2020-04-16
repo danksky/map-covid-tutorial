@@ -97,7 +97,7 @@ export default class Map extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      countries: null,
+      countryShapes: null,
     };
   }
 
@@ -105,9 +105,15 @@ export default class Map extends React.Component {
     d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
       .then(json => {
         this.setState({
-          countries: feature(json, json.objects.countries).features,
+          countryShapes: feature(json, json.objects.countries).features,
         })
-      });
+        d3.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+          .then(csvData => {
+            console.log(csvData);
+            console.log(csvData[0]);
+            console.log(csvData.columns);
+          })
+      })
   }
 
   render() {
@@ -115,8 +121,8 @@ export default class Map extends React.Component {
       <div className="Map" >
         <svg width={1024} height={650} viewBox="0 0 1024 650">
           <g className="countries-group">
-            {this.state.countries ?
-              this.state.countries.map((featureElement, index) => (
+            {this.state.countryShapes ?
+              this.state.countryShapes.map((featureElement, index) => (
                 <path
                   key={`country-svg-${index}`}
                   d={geoPath().projection(projection)(featureElement)}
